@@ -1,0 +1,97 @@
+
+DATASET:
+  TRAIN_SET: '' # Path to the train set
+  TEST_SET: '' # Path to the test set
+  LIDAR: &lidar 'pixell_bfc_ech'
+  LABEL: &label 'pixell_bfc_box3d-deepen'
+  SYNCHRONIZATION: 
+    sync_labels: [*lidar, *label]
+    interp_labels: ['sbgekinox_bcc_navposvel', 'sbgekinox_bcc_ekfeuler'] # (IMU) For motion compensation
+    tolerance_us: 2000
+
+
+PREPROCESSING:
+
+  POINT_CLOUD:
+    SHUFFLE: True
+    MOTION_COMPENSATION: True
+    INTENSITY:
+      ABSOLUTE: True # Multiply intensity by distance**2
+      LOG: True
+      NORM_FACTOR: 0.05
+    PILLARS:
+      NUMBER_PILLARS: 300
+      MAX_POINTS_PER_PILLAR: 32
+      GRID: {'x':[0,32,64], 'y':[-16,16,64], 'z':[-1,3]} # 'axis':[min, max, number of divisions]
+
+  BOX_3D:
+    FILTER_OCCLUDED: True # Remove boxes with occlusion=2 (>50%)
+    GRID: {'x':[0,32,64], 'y':[-16,16,64], 'z':[-1,3]}
+    CLASSIFICATION: 
+      pedestrian: ['pedestrian']
+      car: ['car']
+      cyclist: ['cyclist']
+    
+
+AUGMENTATION:
+  # INSERT: {'pedestrian': 5, 'car': 5, 'cyclist': 5}
+  LR_FLIP: True
+  TRANSLATION: {'x':[-3,0], 'y':[-3,3], 'z':[-0.5,0.5]}
+  ROTATION: [-5,5]
+  SCALING: [0.95, 1.05]
+
+
+NEURAL_NET:
+  NAME: 'PCloudToBox3D'
+  STATE_ID: pixell_ech_to_box3d
+  ENCODER:
+    growth: 16
+    n_layers: 4
+    kernel: [1,1]
+  BACKBONE:
+    growth: 16
+    n_layers: 6
+    kernel: [3,3]
+  DECODER:
+    growth: 7
+    n_layers: 5
+    kernel: [3,3]
+
+
+POSTPROCESSING:
+  DATASOURCE_TYPE: 'box3d-toynet'
+  MAX_NUMBER_DETECTIONS: 50
+  CONFIDENCE_THRESHOLD: 0.01
+  NON_MAX_SUPPRESSION: False
+  IOU_THRESHOLD_FOR_NMS: 0.2
+
+
+TRAINING:
+  EPOCHS: 100
+  SEED: 42
+  VALIDATION_FRAMES_PROPORTION: 0.1
+  BATCH_SIZE: 6
+  NUM_WORKERS: 6
+  DEVICE: 'cuda'
+
+  LOSS: 
+    Box3DLoss:
+      w_off: 1
+      w_height: 0.1
+      w_sizes: 0.02
+      w_angle: 0.1
+      w_head: 0.1
+      w_heat: 2
+
+  OPTIMIZER: 
+    Adam:
+      lr: 0.001
+  SCHEDULER:
+    DECAY:
+      factor: 0.1
+      n_epochs: 40
+
+  METRICS: 
+    mAP:
+      iou_threshold: 0.25
+      distance_bins: [0,4,8,12,16,20,24,28,32]
