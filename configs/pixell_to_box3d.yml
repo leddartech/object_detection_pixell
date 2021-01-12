@@ -34,7 +34,7 @@ PREPROCESSING:
     
 
 AUGMENTATION:
-  # INSERT: {'pedestrian': 5, 'car': 5, 'cyclist': 5}
+  INSERT: {'pedestrian': 5, 'car': 5, 'cyclist': 5}
   LR_FLIP: True
   TRANSLATION: {'x':[-3,0], 'y':[-3,3], 'z':[-0.5,0.5]}
   ROTATION: [-5,5]
@@ -50,7 +50,7 @@ NEURAL_NET:
     kernel: [1,1]
   BACKBONE:
     growth: 16
-    n_layers: 6
+    n_layers: 60
     kernel: [3,3]
   DECODER:
     growth: 7
