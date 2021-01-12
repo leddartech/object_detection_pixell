@@ -6,7 +6,12 @@ from pioneer.common.platform import extract_sensor_id
 from pioneer.das.api.datasources import VirtualDatasource
 from pioneer.das.api.platform import Platform
 from pioneer.das.api.samples import Box3d, Sample
-from pioneer.das.view.viewer import Viewer
+
+try:
+    from pioneer.das.view.viewer import Viewer
+    HAS_DASVIEW = True
+except:
+    HAS_DASVIEW = False
 
 import argparse
 import glob
@@ -106,6 +111,9 @@ def main(cfg, state, dataset, input_datasource):
 
 
 if __name__ == "__main__":
+
+    if not HAS_DASVIEW:
+        raise Exception('pioneer.das.view must be installed.')
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--cfg')
