@@ -1,8 +1,8 @@
-from dataloader import LeddartechDataset
-from utils import train_valid_indices
-import losses
-import metrics
-import models
+from object_detection_pixell.dataloader import LeddartechDataset
+from object_detection_pixell.utils import train_valid_indices
+from object_detection_pixell import losses
+from object_detection_pixell import metrics
+from object_detection_pixell import models
 
 from ignite.contrib.handlers import tqdm_logger
 from ignite.engine import create_supervised_trainer, create_supervised_evaluator

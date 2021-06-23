@@ -1,7 +1,7 @@
 
 DATASET:
   TRAIN_SET: '' # Path to the train set
-  TEST_SET: '' # Path to the test set
+  TEST_SET: '/media/jean-luc/storage/pixset/test' # Path to the test set
   LIDAR: &lidar 'pixell_bfc_ech'
   LABEL: &label 'pixell_bfc_box3d-deepen'
   SYNCHRONIZATION: 

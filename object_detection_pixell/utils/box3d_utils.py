@@ -1,17 +1,15 @@
-from augmentation import box3d_augment
+from object_detection_pixell.augmentation import box3d_augment
 
 from pioneer.common.IoU3d import matrixIoU
 from pioneer.das.api import datatypes
 
 import numba
 import numpy as np
-import time
 import torch
 
 
 def preprocess_box3d(box3d_sample, cfg, data_augmentation_state=None):
 
-    # s=time.time()
     boxes3d = box3d_sample.raw['data']
     category_names = np.array(box3d_sample.label_names())
 
@@ -54,7 +52,6 @@ def preprocess_box3d(box3d_sample, cfg, data_augmentation_state=None):
         x_max = grid['x'][1],
         y_max = grid['y'][1],
     )
-    # print((time.time()-s)*1e3)
 
     return (target_array, lost_gt)
 
@@ -81,8 +78,6 @@ def convert_category_numbers(boxes3d, original_names, classification):
 
 def create_box3d_target(boxes3d, nb_categories, grid_shape, x_step, y_step, z_mid, x_min, y_min, x_max, y_max):
 
-    # s = time.time()
-
     # Initialize target arrays
     offsets = np.zeros((2, grid_shape[0], grid_shape[1]))
     height = np.zeros((1, grid_shape[0], grid_shape[1]))
@@ -100,7 +95,6 @@ def create_box3d_target(boxes3d, nb_categories, grid_shape, x_step, y_step, z_mi
     # Filter out boxes outside BEV grid
     keep = np.where((i_cx >= 0) & (i_cx < grid_shape[0]) & (i_cy >= 0) & (i_cy < grid_shape[1]))[0]
     boxes3d, cx, cy, i_cx, i_cy = boxes3d[keep], cx[keep], cy[keep], i_cx[keep], i_cy[keep]
-    # print(len(boxes3d))
 
     # Box properties at center point
     offsets[0,i_cx,i_cy] = cx - i_cx
@@ -177,37 +171,10 @@ def create_box3d_target(boxes3d, nb_categories, grid_shape, x_step, y_step, z_mi
 
     heatmap[boxes3d['classes'][i_box][order], ix[order], iy[order]] = 1/nb_cells_to_center[order]
 
-    # import matplotlib.pyplot as plt
-    # category_number = 1
-    # plt.imshow(heatmap[category_number].T[::-1], extent=[0, grid_shape[0], 0, grid_shape[1]])
-    # plt.xlim((0, grid_shape[0]))
-    # plt.ylim((0, grid_shape[1]))
-
-    # ic = np.where(boxes3d['classes'][i_box] == category_number)
-    # plt.scatter((grid_points[i_pt[ic],0]-x_min)/x_step, (grid_points[i_pt[ic],1]-y_min)/y_step)
-
-    # for i in range(len(boxes3d)):
-    #     if boxes3d['classes'][i] == category_number:
-    #         plt.plot([(corner2[i][0]-x_min)/x_step, (corner1[i][0]-x_min)/x_step], [(corner2[i][1]-y_min)/y_step, (corner1[i][1]-y_min)/y_step], c=f'C{i+1}')
-    #         plt.plot([(corner4[i][0]-x_min)/x_step, (corner2[i][0]-x_min)/x_step], [(corner4[i][1]-y_min)/y_step, (corner2[i][1]-y_min)/y_step], c=f'C{i+1}')
-    #         plt.plot([(corner3[i][0]-x_min)/x_step, (corner4[i][0]-x_min)/x_step], [(corner3[i][1]-y_min)/y_step, (corner4[i][1]-y_min)/y_step], c=f'C{i+1}')
-    #         plt.plot([(corner1[i][0]-x_min)/x_step, (corner3[i][0]-x_min)/x_step], [(corner1[i][1]-y_min)/y_step, (corner3[i][1]-y_min)/y_step], c=f'C{i+1}')
-
-    # for i in range(grid_shape[1]):
-    #     plt.axvline(i, 0, grid_shape[0], c='k')
-    # for i in range(grid_shape[0]):
-    #     plt.axhline(i, 0, grid_shape[1], c='k')
-
-    # plt.show()
-
-    # print(1e3*(time.time()-s))
-
     return (np.vstack([offsets, height, sizes, angle, heading, heatmap]), lost_gt)
 
 
 def to_box3d_package(raw, cfg, is_ground_truth=False):
-
-    # s=time.time()
         
     if raw.ndim == 4:
         raw = raw[0] # Batch size = 1 for inference
@@ -218,13 +185,16 @@ def to_box3d_package(raw, cfg, is_ground_truth=False):
         raw[7:8] = torch.sigmoid(raw[7:8])
         raw[8:] = torch.sigmoid(raw[8:])
 
-    raw = raw.detach().cpu().numpy() #Why is it slow (~40ms) when doing inference, but not when evaluation metric (< 1ms) ??????
+    hotspots = find_hotspots(raw[8:])
+
+    raw = raw.detach().cpu().numpy()
+    hotspots = hotspots.detach().cpu().numpy()
 
     grid = cfg['PREPROCESSING']['BOX_3D']['GRID']
 
     box3d, confidences = reconstruct_box3d_from_array(
         array=raw,
-        hotspots=find_hotspots(raw[8:]),
+        hotspots = hotspots,
         confidence_threshold=cfg['POSTPROCESSING']['CONFIDENCE_THRESHOLD'],
         max_nb_detections=cfg['POSTPROCESSING']['MAX_NUMBER_DETECTIONS'], 
         x_step=(grid['x'][1] - grid['x'][0])/grid['x'][2], 
@@ -247,8 +217,6 @@ def to_box3d_package(raw, cfg, is_ground_truth=False):
         )
         box3d = box3d[keep]
 
-    # print(1e3*(time.time()-s))
-
     return {'data':box3d, 'confidence':confidences}
 
 
@@ -266,7 +234,7 @@ def reconstruct_box3d_from_array(array, hotspots, confidence_threshold, max_nb_d
     package = []
     box_confidences = np.empty(0)
 
-    order = np.argsort(hotspots[:,0])[::-1][:max_nb_detections]
+    order = np.argsort(-hotspots[:,0])[:max_nb_detections]
 
     for hotspot in hotspots[order]:
 
@@ -295,16 +263,13 @@ def reconstruct_box3d_from_array(array, hotspots, confidence_threshold, max_nb_d
 
     return package, box_confidences
 
-
-@numba.njit
+MAXPOOL = torch.nn.MaxPool2d(3, stride=1, padding=1)
 def find_hotspots(heatmap):
-    hotspots = []
-    for c in range(heatmap.shape[0]):
-        for i in range(1,heatmap.shape[1]-1):
-            for j in range(1,heatmap.shape[2]-1):
-                if heatmap[c,i,j] == np.max(heatmap[c,i-1:i+2,j-1:j+2]):
-                    hotspots.append([heatmap[c,i,j], c, i ,j])
-    return np.array(hotspots)
+    local_maxima = MAXPOOL(heatmap)
+    match = (heatmap == local_maxima) & (heatmap > 0)
+    confidences = heatmap[match]
+    indices = torch.where(match)
+    return torch.stack((confidences, *indices), dim=1)
 
 
 @numba.njit

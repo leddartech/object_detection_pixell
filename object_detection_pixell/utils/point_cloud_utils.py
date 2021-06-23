@@ -1,4 +1,4 @@
-from augmentation import point_cloud_augment
+from object_detection_pixell.augmentation import point_cloud_augment
 
 from pioneer.common.trace_processing import Binning
 

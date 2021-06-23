@@ -1,5 +1,5 @@
-from utils import to_box3d_package
-import layers
+from object_detection_pixell.utils import to_box3d_package
+from object_detection_pixell import layers
 
 import numpy as np
 import torch

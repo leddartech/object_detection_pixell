@@ -1,4 +1,4 @@
-from utils import to_percentage_string, to_box3d_package
+from object_detection_pixell.utils import to_percentage_string, to_box3d_package
 
 from pioneer.common.IoU3d import matrixIoU
 from pioneer.das.api.categories import get_name_color

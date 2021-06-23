@@ -1,6 +1,6 @@
-from dataloader import LeddartechDatasetInference
-from utils import get_state_dict, to_box3d_package
-import models
+from object_detection_pixell.dataloader import LeddartechDatasetInference
+from object_detection_pixell.utils import get_state_dict, to_box3d_package
+from object_detection_pixell import models
 
 from pioneer.common.platform import extract_sensor_id
 from pioneer.das.api.datasources import VirtualDatasource
@@ -76,6 +76,7 @@ class DasPredictor(VirtualDatasource):
 
         s = time.time()
         raw_output = self.model(torched_lidar)
+        torch.cuda.synchronize()
         t2 = time.time()-s
 
         s = time.time()
