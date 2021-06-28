@@ -8,6 +8,6 @@ ignite
 matplotlib
 argparse
 datetime
-pytest-shutil
+# pytest-shutil
 pioneer-common>=1.1
 pioneer-das-api>=1.1
