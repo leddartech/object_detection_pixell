@@ -48,6 +48,11 @@ class Box3DLoss(nn.Module):
         if N == 0:
             return heatmap_loss
 
+        # s=''
+        # for l in (offsets_loss, height_loss, sizes_loss, angle_loss, heading_loss, heatmap_loss):
+        #     s += f'{l:.4f} | '
+        # print(s)
+
         return (offsets_loss + height_loss + sizes_loss + angle_loss + heading_loss + heatmap_loss)
 
     

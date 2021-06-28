@@ -1,7 +1,5 @@
 from object_detection_pixell.augmentation import point_cloud_augment
 
-from pioneer.common.trace_processing import Binning
-
 import numba
 import numpy as np
 import time
@@ -21,6 +19,11 @@ def get_pcloud_data(pcloud_sample, cfg):
         intensity *= cfg['PREPROCESSING']['POINT_CLOUD']['INTENSITY']['NORM_FACTOR']
         # print(intensity.min(), intensity.mean(), intensity.max())
         pcloud = np.vstack([pcloud.T, intensity]).T
+
+    if 'DISTANCES' in cfg['PREPROCESSING']['POINT_CLOUD']:
+        distances = pcloud_sample.distances
+        distances *= cfg['PREPROCESSING']['POINT_CLOUD']['DISTANCES']['NORM_FACTOR']
+        pcloud = np.vstack([pcloud.T, distances]).T
 
     return pcloud
 

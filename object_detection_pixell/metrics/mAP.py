@@ -14,13 +14,14 @@ import yaml
 
 class mAP(Metric):
 
-    def __init__(self, cfg, iou_threshold=0.25, distance_bins=[0,np.inf]):
+    def __init__(self, cfg, iou_threshold=0.25, distance_bins=[0,np.inf], bird_eye_view:bool=False):
         self.cfg = cfg
         self.output_transform = lambda x: x
         self.iou_threshold = iou_threshold
         self.distance_bins = distance_bins if isinstance(distance_bins, list) else np.append(np.arange(**distance_bins), distance_bins['stop'])
         self.nb_distance_bins = len(self.distance_bins)-1
         self.nb_categories = len(self.cfg['PREPROCESSING']['BOX_3D']['CLASSIFICATION'])
+        self.bird_eye_view = bird_eye_view
         super(mAP, self).__init__()
 
     def reset(self):
@@ -40,6 +41,14 @@ class mAP(Metric):
 
         for i_batch in range(raw_pred.shape[0]):
             pred, true = to_box3d_package(raw_pred[i_batch], self.cfg), to_box3d_package(raw_true[i_batch], self.cfg, is_ground_truth=True)
+
+            if self.bird_eye_view:
+                for bbox in pred['data']:
+                    bbox['c'][2] = 0.
+                    bbox['d'][2] = 1.
+                for bbox in true['data']:
+                    bbox['c'][2] = 0.
+                    bbox['d'][2] = 1.
 
             # Put back the lost boxes (if any) in the array.
             lost_gt_batch = lost_gt[i_batch]

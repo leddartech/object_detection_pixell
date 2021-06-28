@@ -15,7 +15,9 @@ class PCloudToBox3D(nn.Module):
 
         self.feature_extract = layers.DenseBlock(in_channels=in_channels, **self.cfg['NEURAL_NET']['ENCODER'])
         self.backbone = layers.DenseBlock(in_channels=self.feature_extract.out_channels, **self.cfg['NEURAL_NET']['BACKBONE'])
-        self.detection_head = layers.DenseBlock(in_channels=self.backbone.out_channels, out_channels=8+self.nb_classes, **self.cfg['NEURAL_NET']['DECODER'])
+        self.backbone2 = layers.DenseBlock(in_channels=self.backbone.out_channels, **self.cfg['NEURAL_NET']['BACKBONE2'])
+        self.backbone3 = layers.DenseBlock(in_channels=self.backbone2.out_channels, **self.cfg['NEURAL_NET']['BACKBONE3'])
+        self.detection_head = layers.DenseBlock(in_channels=self.backbone3.out_channels, out_channels=8+self.nb_classes, **self.cfg['NEURAL_NET']['DECODER'])
 
     def forward(self, x):
 
@@ -35,6 +37,8 @@ class PCloudToBox3D(nn.Module):
             grid[i,:,indices[i,:,0],indices[i,:,1]] = features[i]
 
         grid = self.backbone(grid)
+        grid = self.backbone2(grid)
+        grid = self.backbone3(grid)
 
         grid = self.detection_head(grid)
 

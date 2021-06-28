@@ -6,7 +6,7 @@ DATASET:
   LABEL: &label 'pixell_bfc_box3d-deepen'
   SYNCHRONIZATION: 
     sync_labels: [*lidar, *label]
-    interp_labels: ['sbgekinox_bcc_navposvel', 'sbgekinox_bcc_ekfeuler'] # (IMU) For motion compensation
+    interp_labels: [] # 'sbgekinox_bcc_navposvel', 'sbgekinox_bcc_ekfeuler'] # (IMU) For motion compensation
     tolerance_us: 2000
 
 
@@ -14,7 +14,7 @@ PREPROCESSING:
 
   POINT_CLOUD:
     SHUFFLE: True
-    MOTION_COMPENSATION: True
+    MOTION_COMPENSATION: False
     INTENSITY:
       ABSOLUTE: True # Multiply intensity by distance**2
       LOG: True
@@ -31,10 +31,16 @@ PREPROCESSING:
       pedestrian: ['pedestrian']
       car: ['car']
       cyclist: ['cyclist']
+      van: ['van']
+      bus: ['bus']
+      truck: ['truck']
+      motorcycle: ['motorcycle']
+      traffic_cone: ['traffic cone']
+      trailer: ['trailer']
     
 
 AUGMENTATION:
-  INSERT: {'pedestrian': 5, 'car': 5, 'cyclist': 5}
+  INSERT: {'pedestrian': 5, 'car': 1, 'cyclist': 3, 'van': 1, 'bus': 1, 'truck': 1, 'motorcycle': 1, 'traffic cone': 1, 'trailer': 1}
   LR_FLIP: True
   TRANSLATION: {'x':[-3,0], 'y':[-3,3], 'z':[-0.5,0.5]}
   ROTATION: [-5,5]
@@ -50,8 +56,19 @@ NEURAL_NET:
     kernel: [1,1]
   BACKBONE:
     growth: 16
-    n_layers: 60
+    n_layers: 15
     kernel: [3,3]
+    out_channels: 100
+  BACKBONE2:
+    growth: 16
+    n_layers: 20
+    kernel: [3,3]
+    out_channels: 200
+  BACKBONE3:
+    growth: 16
+    n_layers: 15
+    kernel: [3,3]
+    out_channels: 100
   DECODER:
     growth: 7
     n_layers: 5
@@ -67,25 +84,25 @@ POSTPROCESSING:
 
 
 TRAINING:
-  EPOCHS: 100
+  EPOCHS: 300
   SEED: 42
   VALIDATION_FRAMES_PROPORTION: 0.1
-  BATCH_SIZE: 6
-  NUM_WORKERS: 6
+  BATCH_SIZE: 18
+  NUM_WORKERS: 9
   DEVICE: 'cuda'
 
   LOSS: 
     Box3DLoss:
-      w_off: 1
+      w_off: 0.1
       w_height: 0.1
       w_sizes: 0.02
       w_angle: 0.1
       w_head: 0.1
-      w_heat: 2
+      w_heat: 20
 
   OPTIMIZER: 
     Adam:
-      lr: 0.001
+      lr: 0.003
   SCHEDULER:
     DECAY:
       factor: 0.1
@@ -94,4 +111,5 @@ TRAINING:
   METRICS: 
     mAP:
       iou_threshold: 0.25
-      distance_bins: [0,4,8,12,16,20,24,28,32]
+      distance_bins: [0,32]
+      bird_eye_view: True
