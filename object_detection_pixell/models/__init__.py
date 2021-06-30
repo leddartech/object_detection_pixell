@@ -1,1 +1,2 @@
 from .pcloud_to_box3d import PCloudToBox3D
+from .pcloud_to_box3d_v2 import PCloudToBox3DV2

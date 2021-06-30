@@ -48,7 +48,7 @@ AUGMENTATION:
 
 
 NEURAL_NET:
-  NAME: 'PCloudToBox3D'
+  NAME: 'PCloudToBox3DV2'
   STATE_ID: pixell_ech_to_box3d
   ENCODER:
     growth: 16

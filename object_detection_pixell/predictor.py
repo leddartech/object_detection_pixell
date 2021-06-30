@@ -10,7 +10,7 @@ import yaml
 FILEPATH = os.path.dirname(os.path.abspath(__file__))
 
 
-CFG = f'{FILEPATH}/configs/pixell_to_box3d.yml'
+CFG = f'{FILEPATH}/configs/pixell_to_box3d_v2.yml'
 STATE = f'{FILEPATH}/states/state.pt'
 IN_CHANNELS = 7
 
@@ -32,19 +32,20 @@ class Predictor:
 
     def __call__(self, pcloud, amplitudes):
 
+        _amplitudes = np.copy(amplitudes)
         if self.cfg['PREPROCESSING']['POINT_CLOUD']['INTENSITY']['ABSOLUTE']:
             distances_sq = pcloud[:,0]**2 + pcloud[:,1]**2 + pcloud[:,2]**2
-            amplitudes *= distances_sq
+            _amplitudes *= distances_sq
         if self.cfg['PREPROCESSING']['POINT_CLOUD']['INTENSITY']['LOG']:
-            amplitudes = np.log(amplitudes+1)
-        amplitudes *= self.cfg['PREPROCESSING']['POINT_CLOUD']['INTENSITY']['NORM_FACTOR']
+            _amplitudes = np.log(_amplitudes+1)
+        _amplitudes *= self.cfg['PREPROCESSING']['POINT_CLOUD']['INTENSITY']['NORM_FACTOR']
 
-        pcloud = np.vstack([pcloud.T, amplitudes]).T
+        _pcloud = np.vstack([pcloud.T, _amplitudes]).T
 
         grid = self.cfg['PREPROCESSING']['POINT_CLOUD']['PILLARS']['GRID']
 
         pillars, indices = create_pillars(
-            pcloud,
+            _pcloud,
             self.cfg['PREPROCESSING']['POINT_CLOUD']['PILLARS']['MAX_POINTS_PER_PILLAR'],
             self.cfg['PREPROCESSING']['POINT_CLOUD']['PILLARS']['NUMBER_PILLARS'],
             (grid['x'][1] - grid['x'][0])/grid['x'][2],

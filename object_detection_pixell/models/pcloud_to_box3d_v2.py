@@ -7,9 +7,9 @@ import torch.nn as nn
 
 
 
-class PCloudToBox3D(nn.Module):
+class PCloudToBox3DV2(nn.Module):
     def __init__(self, cfg, in_channels=7):
-        super(PCloudToBox3D, self).__init__()
+        super(PCloudToBox3DV2, self).__init__()
         self.cfg = cfg
         self.nb_classes = len(self.cfg['PREPROCESSING']['BOX_3D']['CLASSIFICATION'])
 
