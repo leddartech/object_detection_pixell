@@ -192,7 +192,7 @@ def to_box3d_package(raw, cfg, is_ground_truth=False):
 
     grid = cfg['PREPROCESSING']['BOX_3D']['GRID']
 
-    box3d, confidences = reconstruct_box3d_from_array(
+    boxes3d, confidences = reconstruct_box3d_from_array(
         array=raw,
         hotspots = hotspots,
         confidence_threshold=cfg['POSTPROCESSING']['CONFIDENCE_THRESHOLD'],
@@ -206,18 +206,18 @@ def to_box3d_package(raw, cfg, is_ground_truth=False):
         y_max=grid['y'][1],
     )
 
-    box3d = np.array(box3d, dtype=datatypes.box3d())
+    boxes3d = np.array(boxes3d, dtype=datatypes.box3d())
 
-    if cfg['POSTPROCESSING']['NON_MAX_SUPPRESSION'] and len(box3d) > 1 and not is_ground_truth:
+    if cfg['POSTPROCESSING']['NON_MAX_SUPPRESSION'] and len(boxes3d) > 1 and not is_ground_truth:
 
         keep = non_maximum_suppression(
-            iou_matrix=matrixIoU([box3d['c'], box3d['d'], 'z', box3d['r'][:,2]]),
+            iou_matrix=matrixIoU([boxes3d['c'], boxes3d['d'], 'z', boxes3d['r'][:,2]]),
             iou_threshold=cfg['POSTPROCESSING']['IOU_THRESHOLD_FOR_NMS'], 
             confidences=confidences,
         )
-        box3d = box3d[keep]
+        boxes3d = boxes3d[keep]
 
-    return {'data':box3d, 'confidence':confidences}
+    return {'data':boxes3d, 'confidence':confidences}
 
 
 @numba.njit

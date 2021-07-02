@@ -17,10 +17,10 @@ class BasicLayer(nn.Module):
                         Specify the probability rate;  if set to None (by default), there will be no layer of dropout.
     """
 
-    def __init__(self, in_channels:int, out_channels:int, kernel:tuple=(3,3,3), padding:bool=True, activation=nn.ReLU(), dropout=None):
+    def __init__(self, in_channels:int, out_channels:int='all', kernel:tuple=(3,3,3), padding:bool=True, activation=nn.ReLU(), dropout=None):
         super(BasicLayer, self).__init__()
         self.dropout = dropout
-        self.out_channels = out_channels
+        self.out_channels = out_channels if out_channels != 'all' else in_channels
 
         if padding:
             padding = tuple(int((kernel[i]-1)/2) for i in range(len(kernel)))

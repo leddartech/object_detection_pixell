@@ -124,8 +124,8 @@ def create_pillars(pcloud, max_points_per_pillar, max_number_pillars, x_step, y_
         ])
 
         in_pillar = np.where(
-            (pcloud[:, 0] > pillar_grid_index_xy[0]*x_step + x_min) & (pcloud[:, 0] < pillar_grid_index_xy[0]*x_step + x_min + x_step) &
-            (pcloud[:, 1] > pillar_grid_index_xy[1]*y_step + y_min) & (pcloud[:, 1] < pillar_grid_index_xy[1]*y_step + y_min + y_step) &
+            (pcloud[:, 0] > grid_cell_corner_position[0]) & (pcloud[:, 0] < grid_cell_corner_position[0] + x_step) &
+            (pcloud[:, 1] > grid_cell_corner_position[1]) & (pcloud[:, 1] < grid_cell_corner_position[1] + y_step) &
             (pcloud[:, 2] > z_min) & (pcloud[:, 2] < z_max)
         )[0]
 

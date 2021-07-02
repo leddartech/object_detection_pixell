@@ -34,7 +34,7 @@ def main(cfg, resume_state=None):
     time_str = datetime.datetime.today().strftime("%Y_%m_%d_%H_%M_%S")
     results_directory = f"{FILEPATH}/results/{time_str}"
     os.makedirs(f"{results_directory}/states/")
-    cfg['STATES_DIRECTORY'] = f"{results_directory}/states"
+    states_directory = f"{results_directory}/states"
     with open(f"{results_directory}/config.yml", "w") as f:
         yaml.dump(cfg, f)
 
@@ -93,7 +93,7 @@ def main(cfg, resume_state=None):
     optimizer.lr_decay_factor = 1
     def lr_decay(_):
         for param_group in optimizer.param_groups:
-            ep = trainer.state.epoch
+            ep = trainer.state.epoch - 1
             N = cfg['TRAINING']['SCHEDULER']['DECAY']['n_epochs']
             f = cfg['TRAINING']['SCHEDULER']['DECAY']['factor']
             optimizer.lr_decay_factor = np.exp(-ep/N) + f*(1-np.exp(-ep/N))
@@ -104,7 +104,7 @@ def main(cfg, resume_state=None):
             trainer.add_event_handler(Events.EPOCH_STARTED, lr_decay)
  
     def handle_epoch_completed(_):
-        torch.save(model.state_dict(), f"{cfg['STATES_DIRECTORY']}/{cfg['NEURAL_NET']['STATE_ID']}_{trainer.state.epoch:03d}.pt")
+        torch.save(model.state_dict(), f"{states_directory}/{cfg['NEURAL_NET']['STATE_ID']}_{trainer.state.epoch:03d}.pt")
         dataset.data_augmentation = False
         evaluator.run(valid_loader)
         dataset.data_augmentation = True

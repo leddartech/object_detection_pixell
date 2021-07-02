@@ -44,18 +44,16 @@ AUGMENTATION:
 NEURAL_NET:
   NAME: 'PCloudToBox3D'
   STATE_ID: pixell_ech_to_box3d
-  ENCODER:
-    growth: 16
-    n_layers: 4
-    kernel: [1,1]
-  BACKBONE:
-    growth: 16
-    n_layers: 60
-    kernel: [3,3]
-  DECODER:
-    growth: 7
-    n_layers: 5
-    kernel: [3,3]
+
+  FEATURE_EXTRACT: {'growth': 16, 'n_layers': 4, 'kernel': [1,1]}
+
+  LAYERS:
+    backbone: 
+      type: 'DenseBlock'
+      args: {'growth': 16, 'n_layers': 60, 'kernel': [3,3]}
+    detection_head: 
+      type: 'DenseBlock'
+      args: {'growth': 7, 'n_layers': 5, 'kernel': [3,3]}
 
 
 POSTPROCESSING:
