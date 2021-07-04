@@ -84,6 +84,9 @@ def generate_random_augmentation_state(cfg, insert_files={}):
             else:
                 raise Exception('Insert data not found (data augmentation). Please run python3 prepare_inserts_data.py --cfg=CONFIG_FILE.') 
 
+        # Shuffle, so the first categories aren't prioritized at the collision checking stage.
+        data_augmentation_state['INSERT'] = np.random.shuffle(data_augmentation_state['INSERT'])
+
     # Left/right flip (50% chance)
     data_augmentation_state['FLIP_LR'] = bool(np.random.randint(2)) if 'LR_FLIP' in cfg['AUGMENTATION'] else False
 
