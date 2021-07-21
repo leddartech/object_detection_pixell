@@ -1,7 +1,7 @@
-from dataloader import LeddartechDataset
-import metrics
-import models
-from utils import get_state_dict
+from object_detection_pixell.dataloader import LeddartechDataset
+from object_detection_pixell import metrics
+from object_detection_pixell import models
+from object_detection_pixell.utils import get_state_dict
 
 from ignite.contrib.handlers import tqdm_logger
 from ignite.engine import create_supervised_evaluator

@@ -1,0 +1,13 @@
+tqdm
+numpy
+numba==0.51.0
+transforms3d
+ruamel.yaml
+torch
+ignite
+matplotlib
+argparse
+datetime
+# pytest-shutil
+pioneer-common>=1.1
+pioneer-das-api>=1.1

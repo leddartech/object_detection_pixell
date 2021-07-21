@@ -1,6 +1,4 @@
-from augmentation import point_cloud_augment
-
-from pioneer.common.trace_processing import Binning
+from object_detection_pixell.augmentation import point_cloud_augment
 
 import numba
 import numpy as np
@@ -21,6 +19,11 @@ def get_pcloud_data(pcloud_sample, cfg):
         intensity *= cfg['PREPROCESSING']['POINT_CLOUD']['INTENSITY']['NORM_FACTOR']
         # print(intensity.min(), intensity.mean(), intensity.max())
         pcloud = np.vstack([pcloud.T, intensity]).T
+
+    if 'DISTANCES' in cfg['PREPROCESSING']['POINT_CLOUD']:
+        distances = pcloud_sample.distances
+        distances *= cfg['PREPROCESSING']['POINT_CLOUD']['DISTANCES']['NORM_FACTOR']
+        pcloud = np.vstack([pcloud.T, distances]).T
 
     return pcloud
 
@@ -121,8 +124,8 @@ def create_pillars(pcloud, max_points_per_pillar, max_number_pillars, x_step, y_
         ])
 
         in_pillar = np.where(
-            (pcloud[:, 0] > pillar_grid_index_xy[0]*x_step + x_min) & (pcloud[:, 0] < pillar_grid_index_xy[0]*x_step + x_min + x_step) &
-            (pcloud[:, 1] > pillar_grid_index_xy[1]*y_step + y_min) & (pcloud[:, 1] < pillar_grid_index_xy[1]*y_step + y_min + y_step) &
+            (pcloud[:, 0] > grid_cell_corner_position[0]) & (pcloud[:, 0] < grid_cell_corner_position[0] + x_step) &
+            (pcloud[:, 1] > grid_cell_corner_position[1]) & (pcloud[:, 1] < grid_cell_corner_position[1] + y_step) &
             (pcloud[:, 2] > z_min) & (pcloud[:, 2] < z_max)
         )[0]
 

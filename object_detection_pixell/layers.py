@@ -17,10 +17,10 @@ class BasicLayer(nn.Module):
                         Specify the probability rate;  if set to None (by default), there will be no layer of dropout.
     """
 
-    def __init__(self, in_channels:int, out_channels:int, kernel:tuple=(3,3,3), padding:bool=True, activation=nn.ReLU(), dropout=None):
+    def __init__(self, in_channels:int, out_channels:int='all', kernel:tuple=(3,3,3), padding:bool=True, activation=nn.ReLU(), dropout=None):
         super(BasicLayer, self).__init__()
         self.dropout = dropout
-        self.out_channels = out_channels
+        self.out_channels = out_channels if out_channels != 'all' else in_channels
 
         if padding:
             padding = tuple(int((kernel[i]-1)/2) for i in range(len(kernel)))
@@ -121,5 +121,93 @@ class DenseBlock(nn.Module):
 
         if self.fin_layer:
             x = self.transi(x)
+
+        return x
+
+
+class Upscale(nn.Module):
+    """Decoding module.  
+
+        It upsamples the input by a factor of 'up'.
+
+        Operations: 
+            Activation -> Batch Norm -> Trans Conv
+
+        Args:
+            in_channels - number of channel features in
+            out_channels - number of channel features out
+            kernel - convlution kernel size
+            up_factor - upscale factor along 2 axes (height, width) or 3 axes (depth, height, width)
+            activation - None, or nn.ReLU() for example.
+    """
+    def __init__(self, in_channels:int, out_channels:int='all', kernel:tuple=(2,1,1), up_factor:tuple=(2,1,1), activation=None):
+        super(Upscale, self).__init__()
+
+        padding = tuple(int((kernel[i]-up_factor[i])/2) for i in range(len(kernel)))
+
+        self.out_channels = out_channels if out_channels != 'all' else in_channels
+
+        if len(kernel) == 2: #(2d)
+            self.activation = activation
+            self.bn = nn.BatchNorm2d(in_channels)
+            self.trans = nn.ConvTranspose2d(in_channels=in_channels, out_channels=self.out_channels, 
+                                            kernel_size=kernel, stride=up_factor, padding=padding)
+        
+        elif len(kernel) == 3: #(3d)
+            self.activation = activation
+            self.bn = nn.BatchNorm3d(in_channels)
+            self.trans = nn.ConvTranspose3d(in_channels=in_channels, out_channels=self.out_channels, kernel_size=kernel, 
+                                            stride=up_factor, padding=padding)
+
+    def forward(self, x):
+
+        x = self.bn(x)
+        if self.activation:
+            x = self.activation(x)
+        x = self.trans(x)
+
+        return x
+
+
+class Downscale(nn.Module):
+    """Decoding module.  
+
+        It downsamples the input by a factor of 'down'.
+
+        Operations: 
+            Activation -> Batch Norm -> Trans Conv
+
+        Args:
+            in_channels - number of channel features in
+            out_channels - number of channel features out
+            kernel - convlution kernel size
+            down_factor - downscale factor along 2 axes (height, width) or 3 axes (depth, height, width)
+            activation - None, or nn.ReLU() for example.
+    """
+    def __init__(self, in_channels:int, out_channels:int='all', kernel:tuple=(2,1,1), down_factor:tuple=(2,1,1), activation=None):
+        super(Downscale, self).__init__()
+
+        padding = tuple(int((kernel[i]-down_factor[i])/2) for i in range(len(kernel)))
+
+        self.out_channels = out_channels if out_channels != 'all' else in_channels
+
+        if len(kernel) == 2: #(2d)
+            self.activation = activation
+            self.bn = nn.BatchNorm2d(in_channels)
+            self.trans = nn.Conv2d(in_channels=in_channels, out_channels=self.out_channels, 
+                                            kernel_size=kernel, stride=down_factor, padding=padding)
+        
+        elif len(kernel) == 3: #(3d)
+            self.activation = activation
+            self.bn = nn.BatchNorm3d(in_channels)
+            self.trans = nn.Conv3d(in_channels=in_channels, out_channels=self.out_channels, kernel_size=kernel, 
+                                            stride=down_factor, padding=padding)
+
+    def forward(self, x):
+
+        x = self.bn(x)
+        if self.activation:
+            x = self.activation(x)
+        x = self.trans(x)
 
         return x
