@@ -8,25 +8,26 @@ import os
 import yaml
 
 FILEPATH = os.path.dirname(os.path.abspath(__file__))
-
-
 CFG = f'{FILEPATH}/configs/pixell_to_box3d_v2.yml'
 STATE = f'{FILEPATH}/states/state.pt'
-IN_CHANNELS = 7
 
 class Predictor:
 
-    def __init__(self):
-        with open(CFG, 'r') as f:
+    def __init__(self, cfg=CFG, state=STATE, in_channels:int=7):
+
+        with open(cfg, 'r') as f:
             self.cfg = yaml.safe_load(f)
+
+        self.state_file = state
+        self.in_channels = in_channels
 
         self.__load_model()
 
     def __load_model(self):
-        self.model = getattr(models, self.cfg['NEURAL_NET']['NAME'])(self.cfg, IN_CHANNELS)
+        self.model = getattr(models, self.cfg['NEURAL_NET']['NAME'])(self.cfg, self.in_channels)
         self.model.to(self.cfg['TRAINING']['DEVICE'])
 
-        state_dict = get_state_dict(STATE, device=self.cfg['TRAINING']['DEVICE'])
+        state_dict = get_state_dict(self.state_file, device=self.cfg['TRAINING']['DEVICE'])
         self.model.load_state_dict(state_dict)
         self.model.eval()
 
