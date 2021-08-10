@@ -39,7 +39,10 @@ class LeddartechDataset(Dataset):
         
         samples = self.platform[index]
 
-        lidar_sample = samples[self.cfg['DATASET']['LIDAR']][0]
+        if isinstance(self.cfg['DATASET']['LIDAR'], list):
+            lidar_sample = [samples[lidar_name][0] for lidar_name in self.cfg['DATASET']['LIDAR']]
+        else:
+            lidar_sample = samples[self.cfg['DATASET']['LIDAR']][0]
         label_sample = samples[self.cfg['DATASET']['LABEL']][0]
 
         data_augmentation_state = None

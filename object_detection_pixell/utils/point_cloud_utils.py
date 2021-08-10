@@ -4,10 +4,12 @@ import numba
 import numpy as np
 
 
-def get_pcloud_data(pcloud_sample, cfg):
+def get_pcloud_data(pcloud_sample, cfg, referential=None):
 
     pcloud = pcloud_sample.point_cloud(
-        undistort=cfg['PREPROCESSING']['POINT_CLOUD']['MOTION_COMPENSATION'])
+        undistort=cfg['PREPROCESSING']['POINT_CLOUD']['MOTION_COMPENSATION'],
+        referential=referential,
+    )
 
     if 'INTENSITY' in cfg['PREPROCESSING']['POINT_CLOUD']:
         intensity = pcloud_sample.amplitudes
@@ -29,7 +31,10 @@ def get_pcloud_data(pcloud_sample, cfg):
 
 def preprocess_pcloud(pcloud_sample, cfg, data_augmentation_state=None):
 
-    pcloud = get_pcloud_data(pcloud_sample, cfg)
+    if isinstance(pcloud_sample, list):
+        pcloud = np.vstack([get_pcloud_data(sample, cfg, referential=pcloud_sample[0].sensor.name) for sample in pcloud_sample])
+    else:
+        pcloud = get_pcloud_data(pcloud_sample, cfg)
 
     if data_augmentation_state is not None:
         if 'INSERT' in data_augmentation_state:
