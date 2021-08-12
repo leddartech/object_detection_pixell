@@ -5,11 +5,17 @@ import glob
 import numpy as np
 import os
 import pickle
-import time
 import torch
 
 FILEPATH = os.path.dirname(os.path.abspath(__file__))
 INSERTS_PATH = f"{FILEPATH}/../inserts_data"
+
+INSERTS_FILES = {}
+for filename in glob.glob(f"{INSERTS_PATH}/*.pkl"):
+    category = filename[:-4].split('/')[-1].split('_')[0]
+    if category not in INSERTS_FILES:
+        INSERTS_FILES[category] = []
+    INSERTS_FILES[category].append(filename)
 
 
 def get_state_dict(path, device):
@@ -60,9 +66,9 @@ def filter_training_frames(cfg):
             return np.arange(**arg)
         except: pass
     raise ValueError('TRAIN_FRAME_SELECTION must be either a path to a .npy file or a dict with keys start, stop and step.')
+        
 
-
-def generate_random_augmentation_state(cfg, insert_files={}):
+def generate_random_augmentation_state(cfg):
     #TODO: use seed to have reproductible results
 
     data_augmentation_state = {}
@@ -71,11 +77,9 @@ def generate_random_augmentation_state(cfg, insert_files={}):
         data_augmentation_state['INSERT'] = []
         
         for category in cfg['AUGMENTATION']['INSERT']:
-            if category not in insert_files:
-                insert_files[category] = glob.glob(f"{INSERTS_PATH}/{category}_*.pkl")
 
-            if len(insert_files[category]) > 0:
-                insert_files_random = np.random.choice(insert_files[category], cfg['AUGMENTATION']['INSERT'][category])
+            if len(INSERTS_FILES[category]) > 0:
+                insert_files_random = np.random.choice(INSERTS_FILES[category], cfg['AUGMENTATION']['INSERT'][category])
 
                 for filename in insert_files_random:
                     with open(filename, 'rb') as f:
@@ -99,7 +103,7 @@ def generate_random_augmentation_state(cfg, insert_files={}):
     if 'SCALING' in cfg['AUGMENTATION']:
         data_augmentation_state['SCALING'] = np.random.uniform(*cfg['AUGMENTATION']['SCALING'])
 
-    return data_augmentation_state, insert_files
+    return data_augmentation_state
 
 
 def prevent_collisions_from_inserts(data_augmentation_state, label_sample):

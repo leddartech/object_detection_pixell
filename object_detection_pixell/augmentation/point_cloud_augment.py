@@ -7,13 +7,10 @@ def insert(xyzi, inserts):
         xyzi = np.vstack([xyzi, insert['pcloud']])
     return xyzi
 
-
 def global_flip_lr(xyz):
     """Flip y axis"""
     xyz[:,1] *= -1
     return xyz
-
-
 
 def global_translation(xyz, translation):
     """Apply global translations"""
@@ -22,12 +19,10 @@ def global_translation(xyz, translation):
     xyz[:,2] += translation['z']
     return xyz
 
-
 def global_rotation(xyz, rotation):
     """Apply global rotation"""
     xyz = xyz @ transforms3d.euler.euler2mat(0,0,np.deg2rad(rotation))
     return xyz
-
 
 def global_scaling(xyz, scaling):
     """Apply global scaling"""

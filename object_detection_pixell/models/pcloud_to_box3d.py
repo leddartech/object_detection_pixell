@@ -6,7 +6,6 @@ import torch
 import torch.nn as nn
 
 
-
 class PCloudToBox3D(nn.Module):
     def __init__(self, cfg, in_channels=7):
         super(PCloudToBox3D, self).__init__()

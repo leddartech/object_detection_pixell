@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 
 
-
 class Box3DLoss(nn.Module):
     """"""
 
@@ -19,7 +18,6 @@ class Box3DLoss(nn.Module):
         self.w_angle = w_angle
         self.w_head = w_head
         self.w_heat = w_heat
-
 
     def forward(self, x, y):
 
@@ -54,7 +52,6 @@ class Box3DLoss(nn.Module):
         # print(s)
 
         return (offsets_loss + height_loss + sizes_loss + angle_loss + heading_loss + heatmap_loss)
-
     
     def parse_array(self, x):
         offsets = x[:,0:2]

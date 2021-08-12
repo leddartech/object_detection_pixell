@@ -8,7 +8,6 @@ def global_flip_lr(boxes3d):
     boxes3d['r'][:,2] *= -1
     return boxes3d
 
-
 def global_translation(boxes3d, translation):
     """Apply global translations"""
     boxes3d['c'][:,0] += translation['x']
@@ -16,13 +15,11 @@ def global_translation(boxes3d, translation):
     boxes3d['c'][:,2] += translation['z']
     return boxes3d
 
-
 def global_rotation(boxes3d, rotation):
     """Apply global rotation"""
     boxes3d['c'] = boxes3d['c'] @ transforms3d.euler.euler2mat(0,0,np.deg2rad(rotation))
     boxes3d['r'][:,2] -= np.deg2rad(rotation)
     return boxes3d
-
 
 def global_scaling(boxes3d, scaling):
     """Apply global scaling"""

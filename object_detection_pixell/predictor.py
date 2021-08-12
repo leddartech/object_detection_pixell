@@ -5,11 +5,12 @@ from object_detection_pixell.utils.point_cloud_utils import create_pillars
 import numpy as np
 import torch
 import os
-import yaml
+from ruamel import yaml
 
 FILEPATH = os.path.dirname(os.path.abspath(__file__))
 CFG = f'{FILEPATH}/configs/pixell_to_box3d_v2.yml'
 STATE = f'{FILEPATH}/states/state.pt'
+
 
 class Predictor:
 
@@ -68,5 +69,3 @@ class Predictor:
         raw_output = self.model(input)
 
         return self.model.post_process(raw_output)
-
-

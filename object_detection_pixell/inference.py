@@ -1,5 +1,5 @@
 from object_detection_pixell.dataloader import LeddartechDatasetInference
-from object_detection_pixell.utils import get_state_dict, to_box3d_package
+from object_detection_pixell.utils import get_state_dict
 from object_detection_pixell import models
 
 from pioneer.common.platform import extract_sensor_id
@@ -14,12 +14,11 @@ except:
     HAS_DASVIEW = False
 
 import argparse
-import glob
 import numpy as np
 import os
 import time
 import torch
-import yaml
+from ruamel import yaml
 
 FILEPATH = os.path.dirname(os.path.abspath(__file__))
 
@@ -42,7 +41,6 @@ class DasPredictor(VirtualDatasource):
             self.sample_class = Sample
         
         super(DasPredictor, self).__init__(self.ds_type, [self.input_datasource], None)
-
 
     def _load_model(self, in_channels):
 
@@ -88,8 +86,6 @@ class DasPredictor(VirtualDatasource):
         return self.sample_class(key, self, package, lidar_sample.timestamp)
 
 
-
-
 def main(cfg, state, dataset, input_datasource):
 
     # FIXME: crash if test set is a directory of multiple datasets
@@ -107,8 +103,6 @@ def main(cfg, state, dataset, input_datasource):
 
     v = Viewer(None, pf)
     v.run()
-
-
 
 
 if __name__ == "__main__":

@@ -16,9 +16,7 @@ import argparse
 import datetime
 import numpy as np
 import os
-import yaml
-
-from shutil import copyfile
+from ruamel import yaml
 
 FILEPATH = os.path.dirname(os.path.abspath(__file__))
 

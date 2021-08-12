@@ -55,7 +55,6 @@ def preprocess_box3d(box3d_sample, cfg, data_augmentation_state=None):
 
     return (target_array, lost_gt)
 
-
 def filter_occluded(boxes3d, category_names, box3d_sample, occlusion_threshold=2):
     try:
         occlusions = box3d_sample.attributes()['occlusions']
@@ -63,7 +62,6 @@ def filter_occluded(boxes3d, category_names, box3d_sample, occlusion_threshold=2
         return boxes3d[keep], category_names[keep]
     except:
         return boxes3d, category_names
-
 
 def convert_category_numbers(boxes3d, original_names, classification):
     boxes3d_coverted = boxes3d.copy()
@@ -74,7 +72,6 @@ def convert_category_numbers(boxes3d, original_names, classification):
             boxes3d_coverted['classes'][to_convert] = i
             keep[to_convert] = True
     return boxes3d_coverted[keep]
-
 
 def create_box3d_target(boxes3d, nb_categories, grid_shape, x_step, y_step, z_mid, x_min, y_min, x_max, y_max):
 
@@ -173,7 +170,6 @@ def create_box3d_target(boxes3d, nb_categories, grid_shape, x_step, y_step, z_mi
 
     return (np.vstack([offsets, height, sizes, angle, heading, heatmap]), lost_gt)
 
-
 def to_box3d_package(raw, cfg, is_ground_truth=False):
         
     if raw.ndim == 4:
@@ -218,7 +214,6 @@ def to_box3d_package(raw, cfg, is_ground_truth=False):
         boxes3d = boxes3d[keep]
 
     return {'data':boxes3d, 'confidence':confidences}
-
 
 @numba.njit
 def reconstruct_box3d_from_array(array, hotspots, confidence_threshold, max_nb_detections, x_step, y_step, x_min, y_min, z_mid, x_max, y_max):
@@ -270,7 +265,6 @@ def find_hotspots(heatmap):
     confidences = heatmap[match]
     indices = torch.where(match)
     return torch.stack((confidences, *indices), dim=1)
-
 
 @numba.njit
 def non_maximum_suppression(iou_matrix, iou_threshold, confidences):

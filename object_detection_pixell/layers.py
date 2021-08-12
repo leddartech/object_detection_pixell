@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 
 
-
 class BasicLayer(nn.Module):
     """ Basic convolution layer composed of a batch norm, activation then convolution operations.
         Works in both 2D and 3D.
@@ -48,8 +47,6 @@ class BasicLayer(nn.Module):
         if self.dropout:
             x = self.drop(x)
         return x
-
-
 
 class DenseBlock(nn.Module):
     """ Dense block of fully convolutional layers. It combines 'n_layers' of basic_layer instances with a 
@@ -124,7 +121,6 @@ class DenseBlock(nn.Module):
 
         return x
 
-
 class Upscale(nn.Module):
     """Decoding module.  
 
@@ -167,7 +163,6 @@ class Upscale(nn.Module):
         x = self.trans(x)
 
         return x
-
 
 class Downscale(nn.Module):
     """Decoding module.  

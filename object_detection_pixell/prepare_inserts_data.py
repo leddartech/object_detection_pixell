@@ -8,15 +8,14 @@ import numpy as np
 import os
 import pickle
 import tqdm
-import yaml
+from ruamel import yaml
 
 # Too prevent "too many open files" error
 import resource
 soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
 resource.setrlimit(resource.RLIMIT_NOFILE, (hard, hard))
 
-FILEPATH = os.path.dirname(os.path.abspath(__file__))
-INSERTS_PATH = f"{FILEPATH}/inserts_data"
+from object_detection_pixell.utils import INSERTS_PATH
 
 
 def main(cfg):
@@ -66,8 +65,6 @@ def main(cfg):
     print(counts)
 
 
-
-
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
@@ -78,7 +75,3 @@ if __name__ == "__main__":
         cfg = yaml.safe_load(f)
 
     main(cfg)
-
-    
-
-    

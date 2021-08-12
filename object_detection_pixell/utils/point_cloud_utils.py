@@ -2,7 +2,6 @@ from object_detection_pixell.augmentation import point_cloud_augment
 
 import numba
 import numpy as np
-import time
 
 
 def get_pcloud_data(pcloud_sample, cfg):

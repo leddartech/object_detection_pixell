@@ -7,9 +7,6 @@ from ignite.metrics.metric import Metric
 
 import numpy as np
 import matplotlib.pyplot as plt
-import torch
-import time
-import yaml
 
 
 class mAP(Metric):
@@ -32,7 +29,6 @@ class mAP(Metric):
         self.distances = np.empty(0)
 
     def update(self, output):
-        # s=time.time()
         raw_pred, raw_true = output
 
         # Some boxes might have been lost in preprocessing. We get them back here.
@@ -94,11 +90,9 @@ class mAP(Metric):
                             # In case of true positive, the distance of the prediction is replaced by the true distance
                             # This is to avoid recalls above 100% for individual distance bins. This won't affect the overall AP.
                             self.distances[-1] = self.get_distances(true['data'][true_in_category[overlap]])
-
                             break
 
                     self.true_positives = np.append(self.true_positives, is_true_positive)
-
 
     def compute(self):
         AP = np.zeros((self.nb_categories, self.nb_distance_bins+1))
@@ -156,7 +150,6 @@ class mAP(Metric):
 
         return output
 
-
     def in_distance_bin(self, boxes, dmin, dmax):
         distances = self.get_distances(boxes)
         return np.where((distances >= dmin) & (distances < dmax))[0]
@@ -168,7 +161,6 @@ class mAP(Metric):
             return (boxes['c'][:,0]**2+boxes['c'][:,1]**2+boxes['c'][:,2]**2)**0.5
         except:
             return (boxes['c'][0]**2+boxes['c'][1]**2+boxes['c'][2]**2)**0.5
-
 
     @staticmethod
     def make_plot(results):

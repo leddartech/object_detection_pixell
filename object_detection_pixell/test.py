@@ -10,12 +10,10 @@ import torch
 from torch.utils.data import DataLoader
 
 import argparse
-import glob
 import os
-import yaml
+from ruamel import yaml
 
 FILEPATH = os.path.dirname(os.path.abspath(__file__))
-
 
 
 def main(cfg, state, plot=False):
