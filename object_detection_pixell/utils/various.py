@@ -21,11 +21,10 @@ for filename in glob.glob(f"{INSERTS_PATH}/*.pkl"):
 def get_state_dict(path, device):
     state = torch.load(path, map_location=device)
 
-    # If trained with multiple GPUs, but infering on a single one, we have to remove the '.module' in the state dict
-    if device == 'cuda' and torch.cuda.device_count() == 1:
-        for key in list(state.keys()):
-            if 'module' in key:
-                state[key[7:]] = state.pop(key)
+    # We have to remove the '.module' in the state dict to run on other devices
+    for key in list(state.keys()):
+        if 'module' in key:
+            state[key[7:]] = state.pop(key)
 
     return state
 
