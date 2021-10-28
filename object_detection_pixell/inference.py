@@ -26,7 +26,7 @@ FILEPATH = os.path.dirname(os.path.abspath(__file__))
 
 class DasPredictor(VirtualDatasource):
 
-    def __init__(self, cfg, state, input_datasource='same_as_training'):
+    def __init__(self, cfg, state, input_datasource='same_as_training', verbose:bool=True):
 
         self.cfg = cfg
         self.dataloader = LeddartechDatasetInference(cfg)
@@ -34,6 +34,7 @@ class DasPredictor(VirtualDatasource):
         self.model = None
         self.ds_type = self.cfg['POSTPROCESSING']['DATASOURCE_TYPE']
         self.input_datasource = self.cfg['DATASET']['LIDAR'] if input_datasource == 'same_as_training' else input_datasource
+        self.verbose = verbose
 
         if self.ds_type.split('-')[0] == 'box3d':
             self.sample_class = Box3d
@@ -44,7 +45,7 @@ class DasPredictor(VirtualDatasource):
 
     def _load_model(self, in_channels):
 
-        self.model = getattr(models, cfg['NEURAL_NET']['NAME'])(self.cfg, in_channels)
+        self.model = getattr(models, self.cfg['NEURAL_NET']['NAME'])(self.cfg, in_channels)
         self.model.to(self.cfg['TRAINING']['DEVICE'])
 
         state_dict = get_state_dict(self.state, device=self.cfg['TRAINING']['DEVICE'])
@@ -81,7 +82,8 @@ class DasPredictor(VirtualDatasource):
         package = self.model.post_process(raw_output)
         t3 = time.time()-s
 
-        print(f'Time: {1e3*(t1+t2+t3):.1f}ms ({int(1/(t1+t2+t3)):d} fps)| preprocessing: {1e3*t1:.1f}ms | inference: {1e3*t2:.1f}ms | postprocessing: {1e3*t3:.1f}ms.')
+        if self.verbose:
+            print(f'Time: {1e3*(t1+t2+t3):.1f}ms ({int(1/(t1+t2+t3)):d} fps)| preprocessing: {1e3*t1:.1f}ms | inference: {1e3*t2:.1f}ms | postprocessing: {1e3*t3:.1f}ms.')
 
         return self.sample_class(key, self, package, lidar_sample.timestamp)
 
