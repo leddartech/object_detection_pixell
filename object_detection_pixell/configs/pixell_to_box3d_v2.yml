@@ -99,5 +99,5 @@ TRAINING:
   METRICS: 
     mAP:
       iou_threshold: 0.25
-      distance_bins: [0,32]
+      distance_bins: [0,4,8,12,16,20,24,28,32]
       bird_eye_view: True

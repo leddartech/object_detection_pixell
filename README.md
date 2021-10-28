@@ -47,7 +47,7 @@ If at some point, you encounter errors mentionning "BadZipFile", you will probab
 
 If something goes wrong during the training, you can resume it from any state with
 ```
-python3 train.py --cfg=configs/pixell_to_box3d.py --resume_state=results/*/states/pixell_ech_to_box3d_*.pt
+python3 train.py --cfg=configs/pixell_to_box3d_v2.py --resume_state=results/*/states/pixell_ech_to_box3d_*.pt
 ```
 Where the * will vary.
 
@@ -57,10 +57,16 @@ Run
 ```
 python3 test.py --cfg=configs/pixell_to_box3d.py --state=results/***/states/pixell_ech_to_box3d_***.pt
 ```
-Where the * will vary. The last * corresponds to the epoch number.
+Where the * will vary. The last * corresponds to the epoch number. 
 
 If pioneer.das.view is installed, you can also try to visualize the results with
 ```
-python3 inference.py --cfg=configs/pixell_to_box3d.py --state=results/***/states/pixell_ech_to_box3d_***.pt --dataset=*
+python3 inference.py --cfg=configs/pixell_to_box3d_v2.py --state=results/***/states/pixell_ech_to_box3d_***.pt --dataset=*
 ```
 Indicate the path to the dataset to visualize with the last argument.
+
+Finally, you can perform offline inference with 
+```
+python3 offline_inference.py --cfg=configs/pixell_to_box3d_v2.py --state=results/***/states/pixell_ech_to_box3d_***.pt --dataset=*
+```
+This will generate a directory in the specified dataset containing the predictions.
